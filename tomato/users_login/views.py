@@ -1,11 +1,15 @@
 # Django Rest Framework
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
 
-# users-login
-from . import serializers
+# users_login
+from .models import UserProfile
+from . import serializers, permissions
 
 
 class HelloApiView(APIView):
@@ -56,7 +60,7 @@ class HelloApiView(APIView):
         return Response({'method': 'DELETE'})
 
 
-class HelloViewSet(ModelViewSet):
+class HelloViewSet(ViewSet):
     """ View Set de prueba """
     serializer_class = serializers.HelloSerializer
 
@@ -99,3 +103,33 @@ class HelloViewSet(ModelViewSet):
     def destroy(self, request, pk=None):
         """ Delete an object with your pk """
         return Response({'http_method': 'DELETE'})
+
+
+class UserProfileViewSet(ModelViewSet):
+    """ Create and update profiles """
+    serializer_class = serializers.UserProfileSerializer
+    queryset = UserProfile.objects.all()
+    # authentication_classes = (TokenAuthentication,)
+    # permissions_classes = (permissions.UpdateOwnProfile,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('email', 'username')
+
+
+class UserLoginApiView(ObtainAuthToken):
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+# API View de prueba para registrar usuarios
+class UserRegisterApiView(APIView):
+    serializer_class = serializers.UserProfileSerializer
+
+    def get(self, request):
+        return Response(self.serializer_class.data, status = status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        return Response(serializer.data, status = status.HTTP_400_BAD_REQUEST)

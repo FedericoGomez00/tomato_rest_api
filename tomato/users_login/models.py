@@ -1,3 +1,4 @@
+# Django
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
@@ -5,17 +6,18 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 class UserProfileManager(BaseUserManager):
     """ Manager for users profile """
     
-    def create_user(self, email, username, name, last_name, password=None):
+    def create_user(self, email, username, name, last_name, password):
         """ Create a new user profile """
         if not email:
             raise ValueError("The user must have an email")
         
         email = self.normalize_email(email)
-        user = self.model(email=email,
-        username=username,
-        name=name,
-        last_name=last_name
-        )
+        user = self.model(
+            email=email,
+            username=username,
+            name=name,
+            last_name=last_name
+            )
 
         user.set_password(password)
         user.save(using=self._db)
@@ -46,11 +48,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         unique=True
     )
     username = models.CharField(
-        max_length=15,
+        max_length=20,
         unique=True
         )
-    name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
     is_activate = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -60,4 +62,4 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email', 'name', 'last_name']
 
     def __str__(self):
-        return self.name + " " + self.last_name
+        return f'{self.username}: {self.name} {self.last_name}'
