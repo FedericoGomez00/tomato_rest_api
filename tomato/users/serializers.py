@@ -1,7 +1,7 @@
 # Django Rest Framework
 from rest_framework import serializers
 
-# users_login
+# users
 from .models import UserProfile
 
 

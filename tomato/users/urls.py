@@ -4,8 +4,8 @@ from django.urls import path, include
 # Django Rest Framework
 from rest_framework.routers import DefaultRouter
 
-# users_login
-from users_login import views
+# users
+from . import views
 
 
 router = DefaultRouter()

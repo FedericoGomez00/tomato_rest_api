@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "users_login.apps.UsersLoginConfig",
+    "users.apps.UsersConfig",
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,7 +124,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'users_login.UserProfile'
+AUTH_USER_MODEL = 'users.UserProfile'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
