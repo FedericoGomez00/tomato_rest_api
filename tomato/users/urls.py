@@ -14,7 +14,7 @@ router.register('profile', views.UserProfileViewSet)
     ## no se coloca basename xq en el viewset definimos un queryset
 
 
-app_name = "users_login"
+app_name = "users"
 urlpatterns = [
     path('hello-view/', views.HelloApiView.as_view(), name="hello"),
     path('login/', views.UserLoginApiView.as_view(), name='login'),
