@@ -24,6 +24,7 @@ class Product(models.Model):
         blank= False
         )
     stock = models.IntegerField()
+    is_available = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title

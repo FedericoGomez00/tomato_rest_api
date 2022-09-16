@@ -9,7 +9,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = '__all__'
+        exclude = ('is_available',)
     
     def validate_price(self, value):
         if value < 200:
