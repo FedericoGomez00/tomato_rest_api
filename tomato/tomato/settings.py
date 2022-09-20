@@ -30,17 +30,30 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
-    "users.apps.UsersConfig",
-    "products.apps.ProductsConfig",
-    'rest_framework',
+BASE_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
+    ]
+
+LOCAL_APPS = [
+    "users.apps.UsersConfig",
+    "products.apps.ProductsConfig",
+    ]
+
+THIRD_APPS = [
+    'rest_framework',
+    'drf_yasg',
+    ]
+
+INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
+
+SWAGGER_SETTINGS = {
+    'DOC_EXPANSION': 'none'
+    }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
