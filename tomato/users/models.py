@@ -53,7 +53,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         )
     name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-    is_activate = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
     objects = UserProfileManager()
@@ -62,4 +62,4 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email', 'name', 'last_name']
 
     def __str__(self):
-        return f'{self.username}: {self.name} {self.last_name}'
+        return self.username

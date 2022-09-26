@@ -1,15 +1,11 @@
 # Django Rest Framework
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 
 # users
 from .models import UserProfile
 
 
-class HelloSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=10)
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(ModelSerializer):
     """ Serializa objeto de perfil de usuario """
 
     class Meta:
@@ -24,7 +20,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         """ Create and return a new user """
-        user = UserProfile.objects.create_user(**validated_data)
+        user = self.Meta.model.objects.create_user(**validated_data)
         return user
     
     def update(self, instance, validated_data):

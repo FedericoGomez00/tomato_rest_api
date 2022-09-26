@@ -20,7 +20,6 @@ class ProductViewSet(ModelViewSet):
         """
         List products
 
-
         List the available products with stock greater than 0
         """
         serializer = self.get_serializer(
@@ -37,7 +36,6 @@ class ProductViewSet(ModelViewSet):
         """
         Create a product
 
-
         Create a model row in the database
         """
         return super().create(request)
@@ -45,7 +43,6 @@ class ProductViewSet(ModelViewSet):
     def retrieve(self, request, pk=None):
         """
         List a product
-
 
         Retrieve a particular model row
         """
@@ -64,7 +61,6 @@ class ProductViewSet(ModelViewSet):
         """
         Update a product
 
-
         Update a particular model row
         """
         return super().update(request, pk)
@@ -81,7 +77,6 @@ class ProductViewSet(ModelViewSet):
     def destroy(self, request, pk=None):
         """
         Destroy a product
-
 
         Put False in is_available -> is_available = False
         """

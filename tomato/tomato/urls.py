@@ -1,6 +1,6 @@
 # Django
 from django.contrib import admin
-from django.urls import path, re_path,include
+from django.urls import path, re_path, include
 
 # Django Rest Framework
 from rest_framework import permissions
