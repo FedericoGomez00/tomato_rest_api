@@ -9,10 +9,11 @@ from rest_framework import status, filters
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
+# from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.settings import api_settings
+from rest_framework.authentication import get_authorization_header
 
 # users
 from .serializers import *
@@ -29,6 +30,22 @@ class UserProfileViewSet(ModelViewSet):
     # permissions_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('email', 'username')
+
+
+# API View de prueba para registrar usuarios
+class UserRegisterApiView(APIView):
+    serializer_class = UserProfileSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data = request.data)
+
+        if serializer.is_valid():
+            user = serializer.data
+            print(user)
+            serializer.data.save()
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        return Response(serializer.data, status = status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginApiView(ObtainAuthToken):
@@ -48,41 +65,42 @@ class UserLoginApiView(ObtainAuthToken):
         The token is renewed at login.
         If the user has an active session, they can't log in
         """
+
+        # Use AuthTokenSerializer -> validate username and password
         login_serializer = self.serializer_class(
             data = request.data,
             context = {'request': request}
             )
         if login_serializer.is_valid():
             user = login_serializer.validated_data['user']
+            user_serializer = UserProfileSerializer(user)
             
             if user.is_active:
                 token,created = Token.objects.get_or_create(user = user)
-                user_serializer = UserProfileSerializer(user)
+
+                message = 'Successful login.'
 
                 if not created:
-                    # # Renueva el token
-                    # token.delete()
-                    # token = Token.objects.create(user = user)
+                    # Renueva el token
+                    token.delete()
+                    token = Token.objects.create(user = user)
 
-                    # No permite tener dos sesiones activas
-                    return Response(
-                    {
-                        'error': 'The user already has an active session'
-                    },
-                    status = status.HTTP_409_CONFLICT
-                    )
+                    message = message + ' The token was renewed.'
                 
                 return Response(
                     {
                         'token': token.key,
                         'user': user_serializer.data,
-                        'message': 'Successful login'
+                        'message': message
                     },
                     status = status.HTTP_201_CREATED
                     )
             
             return Response(
-                {'error': 'This user is not active'},
+                {
+                    'error': 'This user is not active',
+                    'user': user_serializer.data['username']
+                },
                 status = status.HTTP_401_UNAUTHORIZED
                 )
         
@@ -99,7 +117,7 @@ class UserLogoutApiView(APIView):
     The users can log out sending your token
     """
     serializer_class = UserProfileSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    queryset = serializer_class.Meta.model.objects.filter(is_active = True)
     
     def get(self, request, *args, **kwargs):
         """
@@ -112,8 +130,8 @@ class UserLogoutApiView(APIView):
         """
         
         token = request.GET.get('token')
-
-        if token == '':
+        
+        if token == '' or token == None:
             return Response(
             {
                 'error': 'The token was not sent'
@@ -124,6 +142,7 @@ class UserLogoutApiView(APIView):
         try:
             token = Token.objects.get(key = token)
             user = token.user
+        
         except:
             return Response(
                 {
@@ -131,6 +150,7 @@ class UserLogoutApiView(APIView):
                 },
                 status = status.HTTP_400_BAD_REQUEST
                 )
+        
         else:
             # Eliminar sesiones
             all_sessions = Session.objects.filter(expire_date__gte = datetime.now())
@@ -144,21 +164,8 @@ class UserLogoutApiView(APIView):
 
             return Response(
                 {
-                    'token_message': 'The token deleted',
-                    'session_message': 'The sessions deleted'
+                    'token_message': 'Token deleted',
+                    'session_message': 'User sessions deleted'
                 },
                 status = status.HTTP_200_OK
                 )
-
-
-# API View de prueba para registrar usuarios
-class UserRegisterApiView(APIView):
-    serializer_class = UserProfileSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_200_OK)
-        return Response(serializer.data, status = status.HTTP_400_BAD_REQUEST)
