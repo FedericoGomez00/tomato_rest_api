@@ -11,7 +11,6 @@ from .authentication import ExpiringTokenAuthentication
 
 class Authentication(object):
     user = None
-    token_expired = False
 
     def get_user(self, request):
         """
@@ -29,7 +28,7 @@ class Authentication(object):
                 {
                     'error': 'Token was not sent'
                 },
-                status = status.HTTP_409_CONFLICT
+                status = status.HTTP_400_BAD_REQUEST
                 )
             response.accepted_renderer = JSONRenderer()
             response.accepted_media_type = 'application/json'
@@ -39,12 +38,17 @@ class Authentication(object):
         
         token_expire = ExpiringTokenAuthentication()
         try:
-            user, token, self.token_expired = token_expire.authenticate_credentials(token)
+            user, token = token_expire.authenticate_credentials(token)
         
         except AuthenticationFailed as e:
+            token_expired = False
+            if e.get_full_details()['message'] == 'Token expired':
+                token_expired = True
+
             response = Response(
                 {
-                    'error': e.get_full_details()['message']
+                    'error': e.get_full_details()['message'],
+                    'token_expired': token_expired
                 },
                 status = status.HTTP_401_UNAUTHORIZED
                 )
