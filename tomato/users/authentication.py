@@ -16,11 +16,17 @@ class ExpiringTokenAuthentication(TokenAuthentication):
     """
     Add an expiration time to the token
     """
+    expired = False
 
     def expires_in(self, token):
         """ Calculate the expiration time """
         time_elapsed = timezone.now() - token.created
         left_time = timedelta(seconds = TOKEN_EXPIRED_AFTER_SECONDS) - time_elapsed
+        
+        print(f'timedelta: {timedelta(seconds = TOKEN_EXPIRED_AFTER_SECONDS)}')
+        print(f'{timezone.now()} - {token.created}')
+        print(f'time_elapsed: {time_elapsed} // left_time: {left_time}')
+
         return left_time
 
     def is_token_expired(self, token):
@@ -28,11 +34,15 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         return self.expires_in(token) < timedelta(seconds = 0)
 
     def token_expire_handler(self, token):
-        is_expire = self.is_token_expired(token)
-        if is_expire:
-            print('Token expired')
+        self.expired = self.is_token_expired(token)
+        if self.expired:
+            print('TOKEN EXPIRED')
+
+            user = token.user
+            token.delete()
+            token = self.get_model().objects.create(user = user)
         
-        return is_expire
+        return token
 
     def authenticate_credentials(self, key):
         try:
@@ -44,8 +54,8 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         if not token.user.is_active:
             raise AuthenticationFailed('User inactive or deleted')
 
-        is_expired = self.token_expire_handler(token)
-        if is_expired:
+        token = self.token_expire_handler(token)
+        if self.expired:
             raise AuthenticationFailed('Token expired')
         
-        return (token.user, token)
+        return (token.user, token, self.expired)

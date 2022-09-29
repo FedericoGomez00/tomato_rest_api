@@ -7,11 +7,14 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 # from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
+# users
+from users.authentication_mixins import Authentication
+
 # products
 from .serializers import ProductSerializer
 
 
-class ProductViewSet(ModelViewSet):
+class ProductViewSet(Authentication, ModelViewSet):
     """ CRUD for product model. You can list, create, update and destroy """
     serializer_class = ProductSerializer
     queryset = serializer_class.Meta.model.objects.filter(is_available = True)
