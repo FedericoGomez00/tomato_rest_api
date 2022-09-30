@@ -10,6 +10,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 
+# Docs
 schema_view = get_schema_view(
     openapi.Info(
         title = "Tomato API",
@@ -35,6 +36,7 @@ tomato_urls = [
     path('api-auth/', include('rest_framework.urls')),
     path('accounts/', include("users.urls")),
     path('products/', include("products.urls")),
+    path('blog/', include("blog.urls")),
     ]
 
 urlpatterns = drf_yasg_urls + tomato_urls

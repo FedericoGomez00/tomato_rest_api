@@ -129,15 +129,18 @@ class UserLogoutApiView(APIView):
             - token = token
         """
         
-        token = request.GET.get('token')
+        token = get_authorization_header(request).split()
         
-        if token == '' or token == None:
+        try:
+            token = token[1].decode()
+        
+        except:
             return Response(
-            {
-                'error': 'The token was not sent'
-            },
-            status = status.HTTP_409_CONFLICT
-            )
+                {
+                    'error': 'Token was not sent'
+                },
+                status = status.HTTP_400_BAD_REQUEST
+                )
 
         try:
             token = Token.objects.get(key = token)
@@ -166,6 +169,36 @@ class UserLogoutApiView(APIView):
                 {
                     'token_message': 'Token deleted',
                     'session_message': 'User sessions deleted'
+                },
+                status = status.HTTP_200_OK
+                )
+
+
+class UserToken(APIView):
+    """
+    Returns the token with your username
+    """
+    queryset = Token.objects.all()
+    
+    def get(self, request, *args, **kwargs):
+        username = request.GET.get('username')
+        try:
+            user = UserProfileSerializer.Meta.model.objects.get(username = username)
+            user_token = Token.objects.get(user = user)
+        
+        except:
+            return Response(
+                {
+                    'error': 'User was not found'
+                },
+                status = status.HTTP_400_BAD_REQUEST
+                )
+        
+        else:
+            return Response(
+                {
+                    'username' : username,
+                    'token': user_token.key
                 },
                 status = status.HTTP_200_OK
                 )

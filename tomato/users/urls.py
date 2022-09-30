@@ -17,5 +17,6 @@ urlpatterns = [
     path('register/', UserRegisterApiView.as_view(), name='register'),
     path('login/', UserLoginApiView.as_view(), name='login'),
     path('logout/', UserLogoutApiView.as_view(), name='logout'),
+    path('refresh-token/', UserToken.as_view(), name='refresh_token'),
     path('', include(router.urls)),
 ]
