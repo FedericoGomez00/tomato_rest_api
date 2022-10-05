@@ -1,8 +1,11 @@
 # Python
 from datetime import datetime
+from smtplib import SMTPException
 
 # Django
 from django.contrib.sessions.models import Session
+from django.shortcuts import get_object_or_404
+from django.core.mail import send_mail
 
 # Django Rest Framework
 from rest_framework import status, filters
@@ -14,6 +17,10 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.settings import api_settings
 from rest_framework.authentication import get_authorization_header
+from rest_framework.decorators import api_view
+
+# tomato
+from tomato import settings
 
 # users
 from .serializers import *
@@ -172,7 +179,7 @@ class UserLogoutApiView(APIView):
                 },
                 status = status.HTTP_200_OK
                 )
-
+                
 
 class UserToken(APIView):
     """
@@ -202,3 +209,69 @@ class UserToken(APIView):
                 },
                 status = status.HTTP_200_OK
                 )
+
+
+def get_random_password(length=8):
+    import string, random
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+
+
+@api_view(['POST'])
+def recover_password(request):
+    serializer_class = UserProfileSerializer
+    queryset = serializer_class.Meta.model.objects.filter(is_active = True)
+
+    if request.method == 'POST':
+        try:
+            # get email
+            model = serializer_class.Meta.model
+            username = request.data['username']
+            user = get_object_or_404(model, username = username)
+            user_email = user.email
+            print(user_email) 
+
+        except:
+            return Response(
+                {
+                    'error' : 'User not found'
+                },
+                status = status.HTTP_400_BAD_REQUEST
+                )
+        
+        try:
+            # get random password and send email
+            new_password = get_random_password(12)
+            body_mail = f'Your new password is {new_password}'
+            print(new_password)
+            send_mail(
+                'Recover password',
+                body_mail,
+                settings.EMAIL_HOST_USER,
+                [user_email],
+                fail_silently = False
+                )
+        except:
+            try:
+                send_mail(
+                    'Recover password',
+                    body_mail,
+                    settings.EMAIL_HOST_USER,
+                    [user_email],
+                    fail_silently = False
+                    )
+            except:
+                return Response(
+                {
+                    'error' : 'E-mail not sent'
+                },
+                status = status.HTTP_409_CONFLICT
+                ) 
+        
+        
+
+    return Response(
+        {
+            'message' : 'GET method is only available'
+        },
+        status = status.HTTP_400_BAD_REQUEST
+        )

@@ -23,7 +23,7 @@ class BlogPost(models.Model):
         null = True,
         on_delete = models.SET_NULL)
     created = models.DateField(auto_now = True)
-    likes = models.IntegerField(default = 0)
+    # likes = models.ManyToManyField(UserProfile)
     is_active = models.BooleanField(default = True)
 
     def __str__(self):

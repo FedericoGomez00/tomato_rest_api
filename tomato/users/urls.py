@@ -18,5 +18,6 @@ urlpatterns = [
     path('login/', UserLoginApiView.as_view(), name='login'),
     path('logout/', UserLogoutApiView.as_view(), name='logout'),
     path('refresh-token/', UserToken.as_view(), name='refresh_token'),
+    path('recover-password/', recover_password, name = 'recover_password'),
     path('', include(router.urls)),
 ]

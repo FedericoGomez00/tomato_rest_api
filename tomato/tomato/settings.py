@@ -15,6 +15,11 @@ def get_secret_key():
     with open(secret_path, 'r', encoding = 'utf-8') as f:
         return f
 
+def get_email_password():
+    secret_path = f'{BASE_DIR}/email.txt'
+    with open(secret_path, 'r', encoding = 'utf-8') as f:
+        return f
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -148,8 +153,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.UserProfile'
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+#     ]
+# }
+
+
+# e-mail
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'fedeegmz@gmail.com'
+EMAIL_HOST_PASSWORD = get_email_password()
+EMAIL_PORT = 587
