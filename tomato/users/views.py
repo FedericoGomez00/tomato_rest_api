@@ -267,11 +267,9 @@ def recover_password(request):
                 status = status.HTTP_409_CONFLICT
                 ) 
         
-        
-
-    return Response(
+        return Response(
         {
-            'message' : 'GET method is only available'
+            'message' : 'E-mail sent'
         },
-        status = status.HTTP_400_BAD_REQUEST
+        status = status.HTTP_200_OK
         )

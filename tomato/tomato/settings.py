@@ -164,6 +164,6 @@ AUTH_USER_MODEL = 'users.UserProfile'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'fedeegmz@gmail.com'
+EMAIL_HOST_USER = 'tomato@gmail.com'
 EMAIL_HOST_PASSWORD = get_email_password()
 EMAIL_PORT = 587
