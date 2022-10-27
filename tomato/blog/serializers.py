@@ -9,11 +9,11 @@ class BlogpostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BlogPost
-        exclude = ('created', 'likes', 'is_active')
+        exclude = ('created', 'is_active')
 
 
-class BlogpostListSerializer(serializers.ModelSerializer):
+# class BlogpostListSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = BlogPost
-        fields = '__all__'
+#     class Meta:
+#         model = BlogPost
+#         fields = '__all__'

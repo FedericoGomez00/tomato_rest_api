@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from users.authentication_mixins import Authentication
 
 # blog
-from .serializers import BlogpostSerializer, BlogpostListSerializer
+from .serializers import BlogpostSerializer
 
 
 class BlogpostViewSet(Authentication, ModelViewSet):
@@ -19,7 +19,7 @@ class BlogpostViewSet(Authentication, ModelViewSet):
     A user can view, write, update and delete a blogpost
     """
     serializer_class = BlogpostSerializer
-    list_serializer_class = BlogpostListSerializer
+    list_serializer_class = BlogpostSerializer
     queryset = serializer_class.Meta.model.objects.filter(is_active = True)
 
     def list(self, request):
@@ -59,7 +59,7 @@ class BlogpostViewSet(Authentication, ModelViewSet):
 
 
 class LikeBlogpost(Authentication, APIView):
-    serializer_class = BlogpostListSerializer
+    serializer_class = BlogpostSerializer
     queryset = serializer_class.Meta.model.objects.filter(is_active = True)
 
     def get(self, request, pk=None):
