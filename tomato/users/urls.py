@@ -9,12 +9,11 @@ from .views import *
 
 
 router = DefaultRouter()
-router.register('profile', UserProfileViewSet) ## no se coloca basename xq en el viewset definimos un queryset
+router.register('profile', UserProfileViewSet)
 
 
 app_name = "users"
 urlpatterns = [
-    path('register/', UserRegisterApiView.as_view(), name='register'),
     path('login/', UserLoginApiView.as_view(), name='login'),
     path('logout/', UserLogoutApiView.as_view(), name='logout'),
     path('refresh-token/', UserToken.as_view(), name='refresh_token'),

@@ -29,30 +29,48 @@ from .serializers import *
 
 class UserProfileViewSet(ModelViewSet):
     """
-    Create and update profiles
+    View Set for profiles
     """
     serializer_class = UserProfileSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    queryset = serializer_class.Meta.model.objects.filter(is_active = True)
     # authentication_classes = (TokenAuthentication,)
     # permissions_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('email', 'username')
 
+    def create(self, request, *args, **kwargs):
+        """
+        Create profile
 
-# API View de prueba para registrar usuarios
-class UserRegisterApiView(APIView):
-    serializer_class = UserProfileSerializer
-    queryset = serializer_class.Meta.model.objects.all()
-
-    def post(self, request, *args, **kwargs):
+        Body Params
+            - email = <email>
+            - username = <username>
+            - name = <name>
+            - last_name = <last_name>
+            - password = <password>
+        
+        Returns
+            - 'id' : <id>
+            - 'email' : <email>
+            - 'username' : <username>
+            - 'name' : <name>
+            - 'last_name' : <last_name>
+        """
         serializer = self.serializer_class(data = request.data)
 
         if serializer.is_valid():
             user = serializer.data
-            print(user)
             serializer.data.save()
-            return Response(serializer.data, status = status.HTTP_200_OK)
-        return Response(serializer.data, status = status.HTTP_400_BAD_REQUEST)
+            
+            return Response(
+                serializer.data,
+                status = status.HTTP_200_OK
+                )
+        
+        return Response(
+            serializer.data,
+            status = status.HTTP_400_BAD_REQUEST
+            )
 
 
 class UserLoginApiView(ObtainAuthToken):
@@ -67,10 +85,17 @@ class UserLoginApiView(ObtainAuthToken):
         """
         Log In
         
-        Log in with username and password.
-
         The token is renewed at login.
         If the user has an active session, they can't log in
+
+        Body Params
+            - username = <username>
+            - password = <password>
+
+        Returns
+            - 'token': token
+            - 'user': user
+            - 'message': 'Successful login.'/'Successful login. The token was renewed.'
         """
 
         # Use AuthTokenSerializer -> validate username and password
@@ -132,8 +157,12 @@ class UserLogoutApiView(APIView):
 
         Send the token in the token variable
 
-        Params
-            - token = token
+        Header Params
+            - Authorization = Token <user_token>
+        
+        Returns
+            - 'token_message': 'Token deleted'
+            - 'session_message': 'User sessions deleted'
         """
         
         token = get_authorization_header(request).split()
@@ -188,6 +217,16 @@ class UserToken(APIView):
     queryset = Token.objects.all()
     
     def get(self, request, *args, **kwargs):
+        """
+        User token
+
+        Params
+            - username = <username>
+        
+        Returns
+            - 'username' : <username>
+            - 'token': <user_token>
+        """
         username = request.GET.get('username')
         try:
             user = UserProfileSerializer.Meta.model.objects.get(username = username)
@@ -218,6 +257,17 @@ def get_random_password(length=8):
 
 @api_view(['POST'])
 def recover_password(request):
+    """
+    Recover password
+
+    Send an email with a new random password
+
+    Body Params
+        - username = <username>
+    
+    Returns
+        - 'message' : 'E-mail sent'
+    """
     serializer_class = UserProfileSerializer
     queryset = serializer_class.Meta.model.objects.filter(is_active = True)
 
@@ -228,7 +278,7 @@ def recover_password(request):
             username = request.data['username']
             user = get_object_or_404(model, username = username)
             user_email = user.email
-            print(user_email) 
+            print(f'Sending email to {user_email}')
 
         except:
             return Response(
